@@ -8,8 +8,8 @@ import FeedbackPage from './pages/FeedbackPage';
 function App() {
   return (
     <UserProvider>
-      <Router>
-        <div className="min-h-screen bg-slate-50">
+      <Router basename="/prepgenius/">
+        <div className="min-h-screen bg-dark-bg text-white">
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/onboarding" element={<OnboardingPage />} />

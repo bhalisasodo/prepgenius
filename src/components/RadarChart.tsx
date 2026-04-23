@@ -35,7 +35,7 @@ const RadarChart = ({ data }: RadarChartProps) => {
     const polygonPath = points.map(p => `${p.x},${p.y}`).join(' ');
 
     return (
-        <div className="relative flex items-center justify-center p-4 bg-white/50 backdrop-blur-sm rounded-[40px] border border-slate-100 shadow-inner">
+        <div className="relative flex items-center justify-center p-4 bg-dark-surface/80 backdrop-blur-sm rounded-3xl border border-dark-border shadow-2xl">
             <svg width={size} height={size} className="overflow-visible">
                 {/* Background Polygons */}
                 {[20, 40, 60, 80, 100].map(level => {
@@ -45,7 +45,7 @@ const RadarChart = ({ data }: RadarChartProps) => {
                             key={level}
                             points={levelPoints.map(p => `${p.x},${p.y}`).join(' ')}
                             fill="none"
-                            stroke="#e2e8f0"
+                            stroke="#2a2a38"
                             strokeWidth="1"
                         />
                     );
@@ -61,7 +61,7 @@ const RadarChart = ({ data }: RadarChartProps) => {
                             y1={center}
                             x2={p.x}
                             y2={p.y}
-                            stroke="#e2e8f0"
+                            stroke="#2a2a38"
                             strokeWidth="1"
                         />
                     );
@@ -70,15 +70,24 @@ const RadarChart = ({ data }: RadarChartProps) => {
                 {/* Data Polygon */}
                 <polygon
                     points={polygonPath}
-                    fill="rgba(59, 130, 246, 0.2)"
-                    stroke="#3b82f6"
+                    fill="rgba(0, 212, 255, 0.15)"
+                    stroke="url(#gradientStroke)"
                     strokeWidth="3"
                     className="animate-pulse-slow"
                 />
 
+                {/* Gradient Definition */}
+                <defs>
+                    <linearGradient id="gradientStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#00d4ff" />
+                        <stop offset="50%" stopColor="#7c3aed" />
+                        <stop offset="100%" stopColor="#00d4ff" />
+                    </linearGradient>
+                </defs>
+
                 {/* Data Points */}
                 {points.map((p, i) => (
-                    <circle key={i} cx={p.x} cy={p.y} r="4" fill="#3b82f6" />
+                    <circle key={i} cx={p.x} cy={p.y} r="5" fill="#00d4ff" opacity="0.8" />
                 ))}
 
                 {/* Labels */}
@@ -91,7 +100,7 @@ const RadarChart = ({ data }: RadarChartProps) => {
                             y={p.y}
                             textAnchor="middle"
                             dominantBaseline="middle"
-                            className="text-[10px] font-bold fill-slate-400 uppercase tracking-tighter"
+                            className="text-[10px] font-bold fill-cyan-accent/80 uppercase tracking-tighter"
                         >
                             {cat.label}
                         </text>

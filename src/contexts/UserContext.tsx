@@ -58,13 +58,17 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const canAccessFeedback = (): boolean => {
-        return tier.type === 'full';
+        // TODO: Enable paywall after testing
+        // return tier.type === 'full';
+        return true; // Allow all access for testing
     };
 
-    const canAccessScenario = (role: string, scenarioId: string): boolean => {
-        if (tier.type === 'full') return true;
+    const canAccessScenario = (_role: string, _scenarioId: string): boolean => {
+        // TODO: Uncomment tier restrictions after testing
+        // if (tier.type === 'full') return true;
         // Free tier: only Inbound Customer Support + General scenario
-        return role === 'Inbound Customer Support' && scenarioId === 'General';
+        // return role === 'Inbound Customer Support' && scenarioId === 'General';
+        return true; // Allow all scenarios for testing
     };
 
     const upgradeToPaid = () => {

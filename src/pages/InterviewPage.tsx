@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Mic, MicOff, PhoneOff, ShieldCheck, Volume2 } from 'lucide-react';
+import { ArrowLeft, Mic, MicOff, PhoneOff, Volume2 } from 'lucide-react';
 import { type ScenarioType } from '../services/aiService';
 import Logo from '../components/Logo';
 import { useElevenLabsConversation } from '../hooks/useElevenLabsConversation';
@@ -70,15 +70,10 @@ const InterviewPage = () => {
 
     // Sync speaking state
     useEffect(() => {
-        // The hook might return isSpeaking state if we exposed it, 
-        // but for now we'll approximate or check if the library provides it.
-        // Actually, @11labs/react useConversation returns { isSpeaking }
-        // Let's assume our hook wrapper spreads it.
         if ((conversation as any).isSpeaking !== undefined) {
             setIsSpeaking((conversation as any).isSpeaking);
         }
     }, [(conversation as any).isSpeaking]);
-
 
     const startInterview = async () => {
         try {
@@ -92,7 +87,6 @@ const InterviewPage = () => {
         await conversation.endSession();
 
         // Process feedback
-        // Filter user responses for analysis
         const userResponses = messages
             .filter(m => m.role === 'user')
             .map(m => m.content);
@@ -106,104 +100,127 @@ const InterviewPage = () => {
         });
     };
 
+    // Stop conversation when navigating away from the page
     useEffect(() => {
-        // Auto-start
-        startInterview();
-        // Cleanup
         return () => {
             conversation.endSession();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [location.pathname]);
+
+    useEffect(() => {
+        // Auto-start
+        startInterview();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-
     return (
-        <div className="flex flex-col h-screen bg-[#050505] text-white overflow-hidden font-sans">
-            {/* Minimalist Top Bar */}
-            <header className="px-6 py-3 flex justify-between items-center bg-black/50 backdrop-blur-xl border-b border-white/5 shrink-0 z-50">
+        <div className="flex flex-col h-screen bg-dark-bg text-white overflow-hidden font-sans">
+            {/* Premium Top Bar */}
+            <header className="px-6 py-4 flex justify-between items-center bg-dark-surface/60 backdrop-blur-xl border-b border-dark-border shrink-0 z-50">
                 <div className="flex items-center space-x-4">
-                    <button onClick={() => navigate('/onboarding')} className="text-white/30 hover:text-white transition-all p-2 hover:bg-white/5 rounded-lg">
+                    <button 
+                        onClick={() => navigate('/onboarding')} 
+                        className="text-gray-tertiary hover:text-white transition-all p-2 hover:bg-white/5 rounded-lg"
+                    >
                         <ArrowLeft size={18} />
                     </button>
-                    <div className="h-4 w-[1px] bg-white/10 mx-2"></div>
-                    <div className="flex items-center space-x-3">
-                        <Logo collapsed className="scale-75 brightness-150" />
-                        <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] hidden md:block">
-                            {isConnected ? 'Session Live' : 'Connecting...'}
-                        </span>
-                    </div>
+                    <div className="h-5 w-[1px] bg-dark-border"></div>
+                    <Logo collapsed className="scale-90" />
                 </div>
 
                 <div className="flex items-center space-x-6">
-                    <div className="hidden md:flex items-center space-x-2 px-3 py-1 bg-white/5 rounded-lg border border-white/5 cursor-help">
-                        <ShieldCheck size={12} className="text-indigo-400" />
-                        <span className="text-[9px] font-black text-white/50 tracking-widest uppercase">{scenarioId}</span>
+                    <div className="flex items-center space-x-3 px-4 py-2 bg-dark-surface rounded-lg border border-dark-border">
+                        <span className="text-[10px] font-black text-gray-tertiary uppercase tracking-widest">{scenarioId}</span>
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`}></div>
-                        <span className="text-[10px] font-mono text-white/40">{formatDuration(duration)}</span>
+                    <div className="flex items-center space-x-3">
+                        <div className={`w-2 h-2 rounded-full transition-colors ${isConnected ? 'bg-emerald-success animate-pulse' : 'bg-amber-warning'}`}></div>
+                        <span className="text-[11px] font-mono text-gray-secondary">{formatDuration(duration)}</span>
                     </div>
+                    <span className="text-[10px] font-black text-gray-tertiary uppercase tracking-widest hidden md:block">
+                        {isConnected ? 'Live' : 'Connecting...'}
+                    </span>
                 </div>
             </header>
 
-            {/* Main Video-Stage Grid */}
-            <main className="flex-1 relative flex items-center justify-center bg-[#000] p-4">
-                <div className="w-full h-full max-w-5xl mx-auto flex flex-col gap-4 relative">
+            {/* Main Stage */}
+            <main className="flex-1 relative flex items-center justify-center bg-gradient-to-b from-dark-bg to-dark-surface/30 p-6 overflow-hidden">
+                <div className="w-full h-full max-w-4xl mx-auto flex flex-col gap-8 relative">
 
-                    {/* Primary Interviewer Feed */}
-                    <div className="flex-1 relative bg-[#111] rounded-2xl border border-white/5 overflow-hidden shadow-2xl flex flex-col items-center justify-center transition-all">
+                    {/* Interviewer Visualizer Section */}
+                    <div className="flex-1 relative rounded-3xl border border-dark-border/50 overflow-hidden shadow-2xl flex flex-col items-center justify-center bg-dark-surface/40 backdrop-blur-sm">
+                        
+                        {/* Top Status Bar */}
+                        <div className="absolute top-0 left-0 right-0 h-16 px-6 flex items-center justify-center border-b border-dark-border/30 backdrop-blur-sm">
+                            <p className="text-[11px] font-black text-gray-secondary uppercase tracking-widest">
+                                {isConnected ? '● Interview in Progress' : '● Connecting...'}
+                            </p>
+                        </div>
 
-                        <AudioVisualizer isSpeaking={isSpeaking} scale="lg" />
+                        {/* Visualizer */}
+                        <div className="flex-1 flex items-center justify-center">
+                            <AudioVisualizer isSpeaking={isSpeaking} scale="lg" />
+                        </div>
 
                         {/* Live Captions */}
-                        <div className="absolute bottom-10 left-0 right-0 px-8 flex justify-center z-20 pointer-events-none">
-                            <div className="max-w-2xl w-full px-6 py-4 bg-black/40 backdrop-blur-lg rounded-2xl border border-white/5 text-center transition-all shadow-2xl min-h-[80px] flex items-center justify-center">
-                                <p className="text-lg md:text-xl font-medium text-white/90 leading-snug tracking-tight">
-                                    {messages.length > 0 ? messages[messages.length - 1].content : (isConnected ? "Listening..." : "Initializing connection...")}
+                        <div className="absolute bottom-8 left-0 right-0 px-8 flex justify-center z-20">
+                            <div className="max-w-2xl w-full px-6 py-4 bg-dark-surface/90 backdrop-blur-lg rounded-2xl border border-cyan-accent/30 text-center transition-all shadow-2xl min-h-[80px] flex items-center justify-center">
+                                <p className="text-base md:text-lg font-medium text-white leading-relaxed">
+                                    {messages.length > 0 ? messages[messages.length - 1].content : (isConnected ? "Listening..." : "Initializing...")}
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    {/* Control Bar (integrated into bottom) */}
-                    <div className="h-24 bg-[#0a0a0a] rounded-2xl border border-white/5 flex items-center justify-between px-8">
-                        <div className="flex items-center space-x-4">
+                    {/* Control Bar */}
+                    <div className="h-20 bg-dark-surface rounded-2xl border border-dark-border/50 flex items-center justify-between px-8 backdrop-blur-sm shadow-xl">
+                        <div className="flex items-center space-x-3">
                             <div className="flex flex-col">
-                                <span className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Status</span>
-                                <span className={`text-xs font-bold ${isConnected ? 'text-green-400' : 'text-yellow-400'}`}>
-                                    {isConnected ? 'LIVE CONNECTION' : 'CONNECTING'}
+                                <span className="text-[9px] font-black text-gray-tertiary uppercase tracking-widest">Status</span>
+                                <span className={`text-xs font-bold transition-colors ${isConnected ? 'text-emerald-success' : 'text-amber-warning'}`}>
+                                    {isConnected ? 'LIVE' : 'CONNECTING'}
                                 </span>
                             </div>
                         </div>
 
                         <div className="flex items-center space-x-4">
+                            {/* Mic Toggle */}
                             <button
-                                onClick={() => {/* Toggle Mute logic if library supports it check docs later, visual only for now */ setIsMicMuted(!isMicMuted) }}
-                                className={`p-4 rounded-full border transition-all ${isMicMuted ? 'bg-red-500 text-white border-red-400' : 'bg-white/5 text-white border-white/10 hover:bg-white/10'}`}
+                                onClick={() => setIsMicMuted(!isMicMuted)}
+                                className={`p-4 rounded-full border-2 transition-all duration-300 ${
+                                    isMicMuted 
+                                        ? 'bg-red-500/20 text-red-400 border-red-400/50' 
+                                        : 'bg-cyan-accent/10 text-cyan-accent border-cyan-accent/40 hover:bg-cyan-accent/20'
+                                }`}
+                                title={isMicMuted ? "Unmute" : "Mute"}
                             >
                                 {isMicMuted ? <MicOff size={20} /> : <Mic size={20} />}
                             </button>
-                            <div className="h-8 w-[1px] bg-white/10 mx-2"></div>
+
+                            <div className="h-8 w-[1px] bg-dark-border"></div>
+
+                            {/* End Button */}
                             <button
                                 onClick={endInterview}
-                                className="px-8 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-black uppercase tracking-widest border border-red-500/50 transition-all shadow-lg hover:shadow-red-900/20 flex items-center space-x-2"
+                                className="px-6 py-3 bg-red-600/80 hover:bg-red-500 text-white rounded-xl text-xs font-black uppercase tracking-widest border border-red-500/50 transition-all duration-300 shadow-lg hover:shadow-red-900/30 flex items-center space-x-2"
                             >
                                 <PhoneOff size={16} />
-                                <span>End Interview</span>
+                                <span>End</span>
                             </button>
                         </div>
 
-                        <div className="flex items-center space-x-4 w-[120px] justify-end">
-                            <div className="w-full bg-white/10 rounded-full h-1">
-                                <div className="bg-indigo-500 h-1 rounded-full" style={{ width: '60%' }}></div>
+                        {/* Volume Indicator */}
+                        <div className="flex items-center space-x-3 w-[140px] justify-end">
+                            <div className="flex-1 bg-dark-border rounded-full h-1.5 overflow-hidden">
+                                <div 
+                                    className="bg-gradient-to-r from-cyan-accent to-purple-accent h-full rounded-full transition-all duration-300"
+                                    style={{ width: isSpeaking ? '75%' : '25%' }}
+                                ></div>
                             </div>
-                            <Volume2 size={16} className="text-white/40" />
+                            <Volume2 size={16} className="text-gray-secondary" />
                         </div>
                     </div>
                 </div>
-
-                {/* Grid Overlay */}
-                <div className="absolute inset-0 pointer-events-none opacity-[0.02] bg-[linear-gradient(to_right,#888_1px,transparent_1px),linear-gradient(to_bottom,#888_1px,transparent_1px)] bg-[size:64px_64px]"></div>
             </main>
         </div>
     );

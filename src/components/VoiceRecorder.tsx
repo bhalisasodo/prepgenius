@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Mic, MicOff, Square, Play, RefreshCw, Volume2, CheckCircle2 } from 'lucide-react';
+import { Mic, MicOff, Play, RefreshCw } from 'lucide-react';
 
 interface VoiceRecorderProps {
     onRecordingComplete: (blob: Blob, transcript: string) => void;
@@ -12,7 +12,6 @@ const VoiceRecorder = ({ onRecordingComplete, isProcessing, minimal = false }: V
     const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
     const [recordingTime, setRecordingTime] = useState(0);
     const [transcript, setTranscript] = useState('');
-    const [isSilenceDetected, setIsSilenceDetected] = useState(false);
 
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const recognitionRef = useRef<any>(null);
@@ -81,10 +80,9 @@ const VoiceRecorder = ({ onRecordingComplete, isProcessing, minimal = false }: V
                         fullTranscript += event.results[i][0].transcript;
                     }
                     setTranscript(fullTranscript);
-                    setIsSilenceDetected(false);
                     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
                     silenceTimerRef.current = window.setTimeout(() => {
-                        setIsSilenceDetected(true);
+                        // Silence detection timeout
                     }, 2500);
                 };
 
@@ -96,7 +94,6 @@ const VoiceRecorder = ({ onRecordingComplete, isProcessing, minimal = false }: V
             setIsRecording(true);
             setRecordingTime(0);
             setTranscript('');
-            setIsSilenceDetected(false);
 
             timerRef.current = window.setInterval(() => {
                 setRecordingTime((prev) => prev + 1);
