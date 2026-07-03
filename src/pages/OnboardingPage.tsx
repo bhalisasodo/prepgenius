@@ -7,12 +7,12 @@ import Logo from '../components/Logo';
 
 const OnboardingPage = () => {
     const navigate = useNavigate();
-    const { tier, useInterview } = useUser();
+    const { tier, profile, updateProfile, useInterview } = useUser();
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
-        role: 'Inbound Customer Support',
-        experience: '0-1 years',
-        scenario: 'General' as ScenarioType
+        role: profile.role,
+        experience: profile.experience,
+        scenario: profile.scenario as ScenarioType
     });
     const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
 
@@ -32,6 +32,11 @@ const OnboardingPage = () => {
                 setShowUpgradePrompt(true);
                 return;
             }*/
+            updateProfile({
+                role: formData.role,
+                experience: formData.experience,
+                scenario: formData.scenario
+            });
             // Use one interview credit
             useInterview();
             navigate('/interview', { state: formData });

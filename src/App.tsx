@@ -4,6 +4,7 @@ import LandingPage from './pages/LandingPage';
 import OnboardingPage from './pages/OnboardingPage';
 import InterviewPage from './pages/InterviewPage';
 import FeedbackPage from './pages/FeedbackPage';
+import ProgressPage from './pages/ProgressPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
             <Route path="/onboarding" element={<OnboardingPage />} />
             <Route path="/interview" element={<InterviewPage />} />
             <Route path="/feedback" element={<FeedbackPage />} />
+            <Route path="/progress" element={<ProgressPage />} />
           </Routes>
         </div>
       </Router>

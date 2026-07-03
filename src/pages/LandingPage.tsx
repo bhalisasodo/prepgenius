@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, CheckCircle, Shield, Briefcase, PlayCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle, Shield, Briefcase, PlayCircle, TrendingUp } from 'lucide-react';
 import Logo from '../components/Logo';
+import { useUser } from '../contexts/UserContext';
 
 const LandingPage = () => {
     const navigate = useNavigate();
+    const { profile, sessions } = useUser();
 
     return (
         <div className="min-h-screen bg-dark-bg text-white font-sans">
@@ -113,6 +115,62 @@ const LandingPage = () => {
                                 <div className="text-[9px] text-gray-tertiary font-bold uppercase mb-1">Pace</div>
                                 <div className="text-sm font-bold text-cyan-accent">Engaging</div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section className="container mx-auto px-6 py-16">
+                <div className="rounded-3xl border border-dark-border/50 bg-dark-surface/50 p-8 md:p-10">
+                    <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+                        <div>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-accent">Practice journey</p>
+                            <h2 className="text-2xl font-black text-white mt-2">Your interview prep is now more structured</h2>
+                            <p className="text-sm text-gray-secondary mt-3 max-w-2xl">
+                                PrepGenius now remembers your target role, experience level, and recent practice sessions so every interview feels more focused.
+                            </p>
+                        </div>
+                        <div className="rounded-2xl bg-dark-bg border border-dark-border px-4 py-3 text-sm text-gray-secondary">
+                            <div className="font-semibold text-white">Current focus</div>
+                            <div>{profile.role} • {profile.experience}</div>
+                        </div>
+                    </div>
+
+                    <div className="mt-8 grid gap-4 md:grid-cols-2">
+                        <div className="rounded-2xl border border-dark-border/60 bg-dark-bg/70 p-5">
+                            <div className="flex items-center text-cyan-accent">
+                                <TrendingUp className="mr-2" size={18} />
+                                <span className="text-[10px] font-bold uppercase tracking-[0.3em]">Recent sessions</span>
+                            </div>
+                            <div className="mt-4 space-y-3">
+                                {sessions.length > 0 ? sessions.slice(-3).map((session) => (
+                                    <div key={session.id} className="flex items-center justify-between rounded-xl border border-dark-border/60 px-3 py-2 text-sm">
+                                        <div>
+                                            <div className="font-semibold text-white">{session.scenario}</div>
+                                            <div className="text-gray-tertiary text-xs">{session.role}</div>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="font-semibold text-cyan-accent">{session.score}/100</div>
+                                            <div className="text-[10px] uppercase tracking-[0.2em] text-gray-tertiary">{session.category}</div>
+                                        </div>
+                                    </div>
+                                )) : <p className="text-sm text-gray-secondary">Complete your first interview to build your practice history.</p>}
+                            </div>
+                        </div>
+
+                        <div className="rounded-2xl border border-dark-border/60 bg-dark-bg/70 p-5">
+                            <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-accent">North Star</div>
+                            <ul className="mt-4 space-y-3 text-sm text-gray-secondary">
+                                <li>• Practice realistic interviews with a clear role focus.</li>
+                                <li>• Receive actionable, role-aware feedback after each session.</li>
+                                <li>• Build a measurable readiness trend over time.</li>
+                            </ul>
+                            <button
+                                onClick={() => navigate('/progress')}
+                                className="mt-5 w-full rounded-xl border border-cyan-accent/30 bg-cyan-accent/10 px-4 py-2.5 font-semibold text-cyan-accent transition-colors hover:bg-cyan-accent/20"
+                            >
+                                View progress dashboard
+                            </button>
                         </div>
                     </div>
                 </div>

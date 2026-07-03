@@ -5,11 +5,12 @@ import { aiService, type Feedback, type ScenarioType } from '../services/aiServi
 import { useUser } from '../contexts/UserContext';
 import RadarChart from '../components/RadarChart';
 import Logo from '../components/Logo';
+import { getReadinessCategory } from '../utils/readiness';
 
 const FeedbackPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { canAccessFeedback } = useUser();
+    const { canAccessFeedback, profile, addSession } = useUser();
     const responses = location.state?.responses || [];
     const scenarioId = (location.state?.scenarioId as ScenarioType) || 'General';
     const isVoice = location.state?.isVoice || false;
@@ -27,6 +28,14 @@ const FeedbackPage = () => {
             if (canAccessFeedback()) {
                 const data = await aiService.generateFeedback(responses, scenarioId, isVoice);
                 setFeedback(data);
+                addSession({
+                    id: `${Date.now()}`,
+                    role: profile.role,
+                    scenario: scenarioId,
+                    score: data.score,
+                    category: getReadinessCategory(data.score),
+                    completedAt: new Date().toISOString()
+                });
             }
             setLoading(false);
         };

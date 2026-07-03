@@ -6,13 +6,32 @@ export interface UserTier {
     maxInterviews: number;
 }
 
+export interface UserProfile {
+    role: string;
+    experience: string;
+    scenario: string;
+}
+
+export interface PracticeSessionSummary {
+    id: string;
+    role: string;
+    scenario: string;
+    score: number;
+    category: 'Not Ready' | 'Borderline' | 'Interview Ready';
+    completedAt: string;
+}
+
 interface UserContextType {
     tier: UserTier;
+    profile: UserProfile;
+    sessions: PracticeSessionSummary[];
     useInterview: () => boolean; // Returns true if interview can proceed
     canAccessFeedback: () => boolean;
     canAccessScenario: (role: string, scenarioId: string) => boolean;
     upgradeToPaid: () => void;
     resetFreeUsage: () => void;
+    updateProfile: (profile: UserProfile) => void;
+    addSession: (session: PracticeSessionSummary) => void;
 }
 
 const FREE_TIER: UserTier = {
@@ -42,9 +61,41 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         return { ...FREE_TIER };
     });
 
+    const [profile, setProfile] = useState<UserProfile>(() => {
+        const stored = localStorage.getItem('prepgenius_profile');
+        if (stored) {
+            try {
+                return JSON.parse(stored) as UserProfile;
+            } catch {
+                return { role: 'Inbound Customer Support', experience: '0-1 years', scenario: 'General' };
+            }
+        }
+        return { role: 'Inbound Customer Support', experience: '0-1 years', scenario: 'General' };
+    });
+
+    const [sessions, setSessions] = useState<PracticeSessionSummary[]>(() => {
+        const stored = localStorage.getItem('prepgenius_sessions');
+        if (stored) {
+            try {
+                return JSON.parse(stored) as PracticeSessionSummary[];
+            } catch {
+                return [];
+            }
+        }
+        return [];
+    });
+
     useEffect(() => {
         localStorage.setItem('prepgenius_user', JSON.stringify(tier));
     }, [tier]);
+
+    useEffect(() => {
+        localStorage.setItem('prepgenius_profile', JSON.stringify(profile));
+    }, [profile]);
+
+    useEffect(() => {
+        localStorage.setItem('prepgenius_sessions', JSON.stringify(sessions));
+    }, [sessions]);
 
     const useInterview = (): boolean => {
         if (tier.interviewsRemaining <= 0) {
@@ -79,14 +130,26 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         setTier({ ...FREE_TIER });
     };
 
+    const updateProfile = (nextProfile: UserProfile) => {
+        setProfile(nextProfile);
+    };
+
+    const addSession = (session: PracticeSessionSummary) => {
+        setSessions(prev => [...prev, session].slice(-8));
+    };
+
     return (
         <UserContext.Provider value={{
             tier,
+            profile,
+            sessions,
             useInterview,
             canAccessFeedback,
             canAccessScenario,
             upgradeToPaid,
-            resetFreeUsage
+            resetFreeUsage,
+            updateProfile,
+            addSession
         }}>
             {children}
         </UserContext.Provider>
